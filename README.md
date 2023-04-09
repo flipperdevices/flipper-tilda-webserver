@@ -20,6 +20,6 @@ This application forked from [tilda-static-page-exporter](https://github.com/Fal
         -e "TILDA_SECRET_KEY=[YOUR SECRET KEY]" \
         -e 'TILDA_STATIC_PATH_PREFIX=/static' \
         -v [YOUR STATIC FILES DIRECTORY]:/static \
-        flipperdevices/flipper-tilda-webserver:latest
+        flipperdevices/flipper-tilda-webserver:[LATEST TAG FROM GITHUB]
     ```
 4. Make some chages on your site and type 'Publish'. Your site will be avaliabe on your server in a few minnutes
