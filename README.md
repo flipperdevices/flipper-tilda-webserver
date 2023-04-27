@@ -21,8 +21,8 @@ This application forked from [tilda-static-page-exporter](https://github.com/Fal
         -e "TILDA_SECRET_KEY=[YOUR SECRET KEY]" \
         -e 'TILDA_STATIC_PATH_PREFIX=/static' \
         # OPTIONAL # \
-        -e 'TILDA_ORIGINAL_URL=[Original Tilda URL e.g "https://projectXXXXXXX.tilda.ws"] \
-        -e 'TILDA_ORIGINAL_HOST=[Original Tilda host e.g "yourcustomdomain.com"] \
+        -e 'TILDA_ORIGINAL_URL=[Original Tilda URL e.g "https://projectXXXXXXX.tilda.ws"]' \
+        -e 'TILDA_ORIGINAL_HOST=[Original Tilda host e.g "yourcustomdomain.com"]' \
         # OPTIONAL # \
         -v [YOUR STATIC FILES DIRECTORY]:/static \
         flipperdevices/flipper-tilda-webserver:[LATEST TAG FROM GITHUB]
