@@ -11,6 +11,31 @@ app = Flask(__name__)
 TILDA_PUBLIC_KEY = os.environ.get("TILDA_PUBLIC_KEY")
 TILDA_SECRET_KEY = os.environ.get("TILDA_SECRET_KEY")
 TILDA_STATIC_PATH_PREFIX = os.environ.get("TILDA_STATIC_PATH_PREFIX")
+TILDA_ORIGINAL_URL = os.environ.get("TILDA_ORIGINAL_URL")
+TILDA_ORIGINAL_HOST = os.environ.get("TILDA_ORIGINAL_HOST")
+
+
+# def save_file_from_tilda_directly("sitemap.xml", Path(TILDA_STATIC_PATH_PREFIX) / "sitemap.xml")
+def save_file_from_original_tilda_url(filename):
+    if not TILDA_ORIGINAL_URL or not TILDA_ORIGINAL_HOST:
+        app.logger.warning(
+            f"Skipping download {filename} due empty TILDA_ORIGINAL_URL or TILDA_ORIGINAL_HOST vars"
+        )
+        return
+    local_path = Path(TILDA_STATIC_PATH_PREFIX) / Path(filename)
+    headers = {
+        "Accept": "*/*",
+        "User-Agent": "curl/7.74.0",
+        "Host": TILDA_ORIGINAL_HOST,
+    }
+    response = requests.get(f"{TILDA_ORIGINAL_URL}/{filename}", headers=headers)
+    if not response.ok:
+        app.logger.warning(f"Failed to download {filename}")
+        return
+    with open(local_path, "wb") as f:
+        for chunk in response.iter_content(chunk_size=1024):
+            if chunk:
+                f.write(chunk)
 
 
 def get_local_path(export_path, target_path):
@@ -69,6 +94,8 @@ def extract_project(project_id):
         html_content = page_info.json()["result"]["html"]
         with open(Path(TILDA_STATIC_PATH_PREFIX) / filename, "w") as f:
             f.write(html_content)
+        save_file_from_original_tilda_url("robots.txt")
+        save_file_from_original_tilda_url("sitemap.xml")
         app.logger.warning(f"Finished extraction for project {project_id}")
 
 
@@ -94,8 +121,6 @@ def handle_webhook():
             )
             extract_project(project_id)
         else:
-            app.logger.error(
-                "Public key did't match!"
-            )
+            app.logger.error("Public key did't match!")
 
     return response

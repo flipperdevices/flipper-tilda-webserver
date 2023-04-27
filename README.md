@@ -8,7 +8,8 @@ This application forked from [tilda-static-page-exporter](https://github.com/Fal
 ## This application does
 1. Handles Tilda's site export webhook via [Tilda's API](https://help.tilda.cc/api)
 2. Exports all site files to specified directory
-3. Serves this files via Nginx
+3. Exports sitemap.xml and robots.txt
+4. Serves this files via Nginx
 
 ## How to use
 1. Generate API credentials (Tilda's Dashboard->Site Settings->API Integration->Generate new API keys)
@@ -19,6 +20,10 @@ This application forked from [tilda-static-page-exporter](https://github.com/Fal
         -e "TILDA_PUBLIC_KEY=[YOUR PUBLIC KEY]" \
         -e "TILDA_SECRET_KEY=[YOUR SECRET KEY]" \
         -e 'TILDA_STATIC_PATH_PREFIX=/static' \
+        # OPTIONAL # \
+        -e 'TILDA_ORIGINAL_URL=[Original Tilda URL e.g "https://projectXXXXXXX.tilda.ws"] \
+        -e 'TILDA_ORIGINAL_HOST=[Original Tilda host e.g "yourcustomdomain.com"] \
+        # OPTIONAL # \
         -v [YOUR STATIC FILES DIRECTORY]:/static \
         flipperdevices/flipper-tilda-webserver:[LATEST TAG FROM GITHUB]
     ```
