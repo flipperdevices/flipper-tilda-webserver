@@ -15,7 +15,6 @@ TILDA_ORIGINAL_URL = os.environ.get("TILDA_ORIGINAL_URL")
 TILDA_ORIGINAL_HOST = os.environ.get("TILDA_ORIGINAL_HOST")
 
 
-# def save_file_from_tilda_directly("sitemap.xml", Path(TILDA_STATIC_PATH_PREFIX) / "sitemap.xml")
 def save_file_from_original_tilda_url(filename):
     if not TILDA_ORIGINAL_URL or not TILDA_ORIGINAL_HOST:
         app.logger.warning(
@@ -63,6 +62,8 @@ def extract_project(project_id):
     )
     pages_list_json = pages_list.json()["result"]
     for page in pages_list_json:
+        if not page["published"]:
+            continue
         page_info = requests.get(
             f'https://api.tildacdn.info/v1/getpagefullexport/?projectid={project_id}&pageid={page["id"]}&publickey={TILDA_PUBLIC_KEY}&secretkey={TILDA_SECRET_KEY}'
         )
@@ -88,15 +89,16 @@ def extract_project(project_id):
             local_path.parent.mkdir(parents=True, exist_ok=True)
             save_file(source_url, local_path)
 
-        filename = page_info.json()["result"]["filename"]
-        if filename == f"page{index_page_id}.html":
-            filename = "index.html"
+        page_alias = page_info.json()["result"]["alias"]
+        page_id = page_info.json()["result"]["id"]
+        filename = "index.html" if page_id == index_page_id else f"{page_alias}.html"
         html_content = page_info.json()["result"]["html"]
         with open(Path(TILDA_STATIC_PATH_PREFIX) / filename, "w") as f:
             f.write(html_content)
-        save_file_from_original_tilda_url("robots.txt")
-        save_file_from_original_tilda_url("sitemap.xml")
-        app.logger.warning(f"Finished extraction for project {project_id}")
+        app.logger.warning(f"Page {page_id} with alias {page_alias} is downloaded!")
+    save_file_from_original_tilda_url("robots.txt")
+    save_file_from_original_tilda_url("sitemap.xml")
+    app.logger.warning(f"Finished extraction for project {project_id}")
 
 
 def save_file(source_url, local_path):
