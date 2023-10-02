@@ -1,4 +1,4 @@
-FROM python:3.11-alpine3.17
+FROM flipperdevices/nginx-headers-more-alpine:1.25.1
 
 WORKDIR /app
 
