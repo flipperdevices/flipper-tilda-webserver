@@ -98,6 +98,7 @@ def extract_project(project_id):
         app.logger.warning(f"Page {page_id} with alias {page_alias} is downloaded!")
     save_file_from_original_tilda_url("robots.txt")
     save_file_from_original_tilda_url("sitemap.xml")
+    save_file_from_original_tilda_url("favicon.ico")
     app.logger.warning(f"Finished extraction for project {project_id}")
 
 
