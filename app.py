@@ -2,9 +2,10 @@
 # and distributed under GNU GPL-3.0 license
 
 import os
-import requests
-from flask import Flask, request, Response
 from pathlib import Path
+
+import requests
+from flask import Flask, Response, request
 
 app = Flask(__name__)
 
@@ -103,6 +104,10 @@ def extract_project(project_id):
 
 
 def save_file(source_url, local_path):
+    if source_url.startswith(
+        "//"
+    ):  # Tilda's bug, some URL's can be like '//static.tildacdn.com/js/jquery-1.10.2.min.js'
+        source_url = "https://" + source_url.lstrip("//")
     response = requests.get(source_url, stream=True)
     with open(local_path, "wb") as f:
         for chunk in response.iter_content(chunk_size=1024):
