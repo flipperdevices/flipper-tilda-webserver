@@ -115,6 +115,32 @@ def save_file(source_url, local_path):
                 f.write(chunk)
 
 
+def cloudflare_purge_cache():
+    if not CLOUDFLARE_ZONE or not CLOUDFLARE_TOKEN:
+        app.logger.warning(
+            f"Skipping purge cloudflare cache due empty CLOUDFLARE_TOKEN or CLOUDFLARE_ZONE vars"
+        )
+        return
+
+    headers = {
+        "Authorization": f"Bearer {CLOUDFLARE_TOKEN}",
+        "Content-Type": "application/json",
+    }
+
+    r = requests.post(
+        f"https://api.cloudflare.com/client/v4/zones/{CLOUDFLARE_ZONE}/purge_cache",
+        headers=headers, json={
+            "purge_everything": True
+        })
+
+    if r.status_code != 200:
+        msg = f"Error: {r.status_code}, {r.text}"
+    else:
+       msg = f"Purged cache for zone: {CLOUDFLARE_ZONE}. {r.text}"
+
+    app.logger.warning(msg)
+
+
 @app.route("/webhook", methods=["GET"])
 def handle_webhook():
     project_id = request.args.get("projectid")
@@ -128,7 +154,22 @@ def handle_webhook():
                 f"Starting extraction for project {project_id} to prefix {TILDA_STATIC_PATH_PREFIX}"
             )
             extract_project(project_id)
+            cloudflare_purge_cache()
         else:
             app.logger.error("Public key did't match!")
+
+    return response
+
+@app.route("/purge_cache", methods=["GET"])
+def handle_purge_cache():
+    webhook_public_key = request.args.get("publickey")
+    webhook_cloudflare_zone = request.args.get("cloudflare_zone")
+    response = Response("ok")
+
+    @response.call_on_close
+    def process_after_request():
+        if webhook_cloudflare_zone == CLOUDFLARE_ZONE and webhook_public_key == TILDA_PUBLIC_KEY:
+            app.logger.warning(f"Manual purge dns zone start")
+            cloudflare_purge_cache()
 
     return response
