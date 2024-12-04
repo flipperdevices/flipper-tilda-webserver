@@ -15,6 +15,8 @@ TILDA_STATIC_PATH_PREFIX = os.environ.get("TILDA_STATIC_PATH_PREFIX")
 TILDA_ORIGINAL_URL = os.environ.get("TILDA_ORIGINAL_URL")
 TILDA_ORIGINAL_HOST = os.environ.get("TILDA_ORIGINAL_HOST")
 
+CLOUDFLARE_TOKEN = os.environ.get("CLOUDFLARE_TOKEN")
+CLOUDFLARE_ZONE = os.environ.get("CLOUDFLARE_ZONE")
 
 def save_file_from_original_tilda_url(filename):
     if not TILDA_ORIGINAL_URL or not TILDA_ORIGINAL_HOST:
