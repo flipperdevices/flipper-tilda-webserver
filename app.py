@@ -30,6 +30,7 @@ def save_file_from_original_tilda_url(filename):
         "User-Agent": "curl/7.74.0",
         "Host": TILDA_ORIGINAL_HOST,
     }
+    app.logger.warning(f"[!] dl file {TILDA_ORIGINAL_URL}/{filename} --> {local_path}")
     response = requests.get(f"{TILDA_ORIGINAL_URL}/{filename}", headers=headers)
     if not response.ok:
         app.logger.warning(f"Failed to download {filename}")
@@ -110,6 +111,8 @@ def save_file(source_url, local_path):
         "//"
     ):  # Tilda's bug, some URL's can be like '//static.tildacdn.com/js/jquery-1.10.2.min.js'
         source_url = "https://" + source_url.lstrip("//")
+
+    app.logger.warning(f"[!] save_file {source_url} --> {local_path}")
     response = requests.get(source_url, stream=True)
     with open(local_path, "wb") as f:
         for chunk in response.iter_content(chunk_size=1024):
