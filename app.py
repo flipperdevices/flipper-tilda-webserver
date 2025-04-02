@@ -112,12 +112,22 @@ def save_file(source_url, local_path):
     ):  # Tilda's bug, some URL's can be like '//static.tildacdn.com/js/jquery-1.10.2.min.js'
         source_url = "https://" + source_url.lstrip("//")
 
-    app.logger.warning(f"[!] save_file {source_url} --> {local_path}")
-    response = requests.get(source_url, stream=True)
-    with open(local_path, "wb") as f:
-        for chunk in response.iter_content(chunk_size=1024):
-            if chunk:
-                f.write(chunk)
+    headers = {
+        "Accept": "*/*",
+        "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36",
+    }
+
+    app.logger.warning(f"[#] save_file {source_url} --> {local_path}")
+    try:
+        response = requests.get(source_url, headers=headers)
+        with open(local_path, "wb") as f:
+            for chunk in response.iter_content(chunk_size=1024):
+                if chunk:
+                    f.write(chunk)
+    except requests.exceptions.ConnectionError:
+        app.logger.warning(f"[!] connection error in save_file {source_url}")
+
+
 
 
 def cloudflare_purge_cache():
