@@ -2,6 +2,7 @@
 # and distributed under GNU GPL-3.0 license
 
 import os
+import time
 from pathlib import Path
 
 import requests
@@ -100,13 +101,14 @@ def extract_project(project_id):
         with open(Path(TILDA_STATIC_PATH_PREFIX) / filename, "w") as f:
             f.write(html_content)
         app.logger.warning(f"Page {page_id} with alias {page_alias} is downloaded!")
+        time.sleep(5)
     save_file_from_original_tilda_url("robots.txt")
     save_file_from_original_tilda_url("sitemap.xml")
     save_file_from_original_tilda_url("favicon.ico")
     app.logger.warning(f"Finished extraction for project {project_id}")
 
 
-def save_file(source_url, local_path):
+def save_file(source_url, local_path, retry=True):
     if source_url.startswith(
         "//"
     ):  # Tilda's bug, some URL's can be like '//static.tildacdn.com/js/jquery-1.10.2.min.js'
@@ -126,8 +128,9 @@ def save_file(source_url, local_path):
                     f.write(chunk)
     except requests.exceptions.ConnectionError:
         app.logger.warning(f"[!] connection error in save_file {source_url}")
-
-
+        if retry:
+            time.sleep(15)
+            save_file(source_url, local_path, False)
 
 
 def cloudflare_purge_cache():
